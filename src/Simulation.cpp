@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <memory>
 #include <vector>
+#define _CRT_SECURE_NO_DEPRECATE
+#include <stdio.h>
 static volatile bool wait = false;
 
 Simulation::Simulation(std::vector<std::shared_ptr<Partition>>& p, std::string output) : partitions(p), irsFile(output) {
@@ -215,6 +217,10 @@ void Simulation::main() {
 	double* globalPressure = (double*)malloc(sizeX*sizeY*sizeof(double));
 	memset((void*)globalPressure, 0, sizeX*sizeY*sizeof(double));
 
+
+	FILE * pFile;
+	pFile = 0;
+
 	// Begin the main loop
 	while (!quit) {
 		while (wait) {
@@ -224,6 +230,26 @@ void Simulation::main() {
 				break;
 			}
 		}
+		if (t == 0){
+				errno_t err;
+				// Open for read (will fail if file "crt_fopen_s.c" does not exist)  
+				err = fopen_s(&pFile, "out.txt", "w+");
+				if (err == 0)
+				{
+					printf("The file  was opened\n");
+				}
+
+		
+		}
+		if (t < 1000){
+			fprintf(pFile, "%f \n", globalPressure[21510]);
+		}
+		else{
+			fclose(pFile);
+			printf("The file was CLOSED\n");
+			quit = true;
+		}
+
 		if (quit) {
 			break;
 		}
@@ -249,6 +275,7 @@ void Simulation::main() {
 
 			// Get pressure fields for each partition, and translate pressure values into
 			// a color.
+
 			for (auto partition : partitions) {
 				if (!partition->shouldRender) continue;
 				double* pressureField = partition->getPressureField();
@@ -256,11 +283,24 @@ void Simulation::main() {
 				int height = partition->height;
 				int gXOffset = partition->globalX - minX;
 				int gYOffset = partition->globalY - minY;
+
+				
+				
+
 				for (int i = 0; i < height; i++) {
 					for (int j = 0; j < width; j++) {
+
+	
+
 						double pressure = pressureField[i*width + j];
 						globalPressure[(gYOffset + i)*sizeX + (gXOffset + j)] = pressure;
 						double norm = 0.5*std::max(-1.0, std::min(1.0, pressure*80.0)) + 0.5;
+
+						if ((gYOffset + i)*sizeX + (gXOffset + j) == 21510){
+							printf("Pr: %f \n", pressure);
+						}
+
+
 						int r = static_cast<int>((norm <= 0.5) ? round(255.0*(1.0 - 2.0*norm)) : 0);
 						int g = static_cast<int>((norm <= 0.5) ? round(255.0*2.0*norm) : round(255.0*2.0*(1.0 - norm)));
 						int b = static_cast<int>((norm >= 0.5) ? round(255.0*2.0*(norm - 0.5)) : 0);

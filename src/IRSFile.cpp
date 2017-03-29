@@ -1,10 +1,10 @@
 #include "IRSFile.h"
 #include <fftw3.h>
 
-IRSHeader::IRSHeader() {}
+IRSHeader::IRSHeader() : format({ 'i', 'S', 'i', 'm' }) {}
 
 IRSHeader::IRSHeader(int32_t sx, int32_t sy, int32_t sz, int32_t ns, int32_t nl)
-	: sizeX(sx), sizeY(sy), sizeZ(sz), nSources(ns), nListeners(nl) {}
+	: sizeX(sx), sizeY(sy), sizeZ(sz), nSources(ns), nListeners(nl), format({ 'i', 'S', 'i', 'm' })  {}
 
 Listener::Listener() {}
 

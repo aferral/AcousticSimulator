@@ -8,11 +8,12 @@
 #include <map>
 #include <mutex>
 #include "SoundSource.h"
+#include <array>
 
 #pragma pack(push,1)
 struct IRSHeader {
 	// Should always contain the text "iSim"
-	char format[4] = {'i', 'S', 'i', 'm'};
+	std::array<char, 4> format;
 
 	// File format version
 	int32_t version{ 1 };
